@@ -9,12 +9,25 @@ var colCentered = {
   margin: '0 auto'
 }
 
-// Style the "Details" button
-var details_button = {
+// Style the "Filter" button
+var small_button = {
   fontWeight: 'bold',
-  width: '80px',
+  // width: '200px',
   float: 'none',
+  marginTop: '5px',
   marginRight: '5px',
+  fontSize: '16px',
+  backgroundColor: 'goldenrod',
+  color: 'black',
+  borderColor: 'black'
+}
+
+// Style the "Reset" button
+var reset_button = {
+  fontWeight: 'bold',
+  width: '125px',
+  float: 'none',
+  margin: '0 auto',
   fontSize: '18px',
   backgroundColor: 'goldenrod',
   color: 'black',
@@ -22,9 +35,9 @@ var details_button = {
 }
 
 // Style the "Details" button
-var arm_button = {
+var details_button = {
   fontWeight: 'bold',
-  width: '65px',
+  width: '80px',
   float: 'none',
   marginRight: '5px',
   fontSize: '18px',
@@ -92,6 +105,14 @@ export default class BookingsAdmin extends React.Component{
       total: '',
       arrivalDate: '',
       checkoutDate: '',
+
+      filterTypeName: '',
+      filterNumber: 0,
+      filterCustomer: '',
+      filterTotalMin: 0,
+      filterTotalMax: 0,
+      filterArrivalDate: '',
+      filterCheckoutDate: '',
     }
   }
 
@@ -109,7 +130,7 @@ export default class BookingsAdmin extends React.Component{
     this.fetchBookings()
   }
 
-  handleChange(e) {
+  changeHandler(e) {
     var obj = {}
     obj[e.target.name] = e.target.value
     this.setState(obj)
@@ -199,6 +220,86 @@ export default class BookingsAdmin extends React.Component{
     .then(this.setState({showModal_2: true})) // show success message modal
   }
 
+  filterByType() {
+    console.log("filter room type name: ", this.state.filterTypeName)
+
+    var url = 'http://localhost:8080/bookings/all'
+    fetch(url)
+      .then(res => res.json())
+      .then(json => this.setState({ bookings: json
+        .filter( b=> String(b.room.type.name).includes(this.state.filterTypeName) )
+      }) )
+      // .then(console.log(this.state.rooms))
+  }
+
+  filterNumber() {
+    console.log("filter room type name: ", this.state.filterNumber)
+
+    var url = 'http://localhost:8080/bookings/all'
+    fetch(url)
+      .then(res => res.json())
+      .then(json => this.setState({ bookings: json
+        .filter( b=> Number(b.room.number) == this.state.filterNumber )
+      }) )
+      // .then(console.log(this.state.rooms))
+  }
+  
+  filterCustomer() {
+    console.log("filter customer name: ", this.state.filterCustomer)
+
+    var url = 'http://localhost:8080/bookings/all'
+    fetch(url)
+      .then(res => res.json())
+      .then(json => this.setState({ bookings: json
+        .filter( b=> String(b.customer.name).includes(this.state.filterCustomer) )
+      }) )
+      // .then(console.log(this.state.rooms))
+  }
+
+  filterTotal() {
+    var url = 'http://localhost:8080/bookings/all'
+    fetch(url)
+      .then(res => res.json())
+      .then(json => this.setState({ bookings: json
+        .filter( b=> Number(b.total) >= this.state.filterTotalMin && Number(b.total) <= this.state.filterTotalMax )
+      }) )
+      // .then(console.log(this.state.rooms))
+  }
+
+  filterArrivalDate() {
+    console.log("filter arrival date: ", this.state.filterArrivalDate)
+
+    var url = 'http://localhost:8080/bookings/all'
+    fetch(url)
+      .then(res => res.json())
+      .then(json => this.setState({ bookings: json
+        .filter( b=> String(b.arrivalDate).includes(this.state.filterArrivalDate) )
+      }) )
+      // .then(console.log(this.state.rooms))
+  }
+
+  filterCheckoutDate() {
+    console.log("filter checkout date: ", this.state.filterCheckoutDate)
+
+    var url = 'http://localhost:8080/bookings/all'
+    fetch(url)
+      .then(res => res.json())
+      .then(json => this.setState({ bookings: json
+        .filter( b=> String(b.checkoutDate).includes(this.state.filterCheckoutDate) )
+      }) )
+      // .then(console.log(this.state.rooms))
+  }
+
+  filterStatus(filterReviewed, filterAccepted) {
+    var url = 'http://localhost:8080/bookings/all'
+    fetch(url)
+      .then(res => res.json())
+      .then(json => this.setState({ bookings: json
+        .filter( b=> Boolean(b.reviewed) === filterReviewed && Boolean(b.accepted) === filterAccepted )
+      }) )
+      // .then(console.log(this.state.rooms))
+  }
+
   // function to close modals
   closeModal_1(){
     this.setState({showModal_1: false})
@@ -223,9 +324,172 @@ export default class BookingsAdmin extends React.Component{
         <br/>
         <div className="row">
           <br/>
+          <h4 style={colCentered}>Filters</h4>
+          <br/>
+          <br/>
+        </div>
+        {/* Filters */}
+        <div className="row">
+          {/* Room number and type name field */}
+          <div className="col-md-3">
+            {/* Room type */}
+            <div className="input-field">
+              <label htmlFor="type-name">Room type:</label>
+              <input type="text" id="type-name" className="form-control" formNoValidate
+              name="filterTypeName" value={this.state.filterTypeName} placeholder="Enter room type name"
+              onChange={this.changeHandler.bind(this)}/>
+            </div>
+            {/* Button that will trigger filterByType function */}
+            {/* this will filter the rooms by type*/}
+            <button type="submit" className="btn btn-primary" 
+              onClick={this.filterByType.bind(this)}
+              onMouseOver={hoverButtonColorOn} onMouseOut={hoverButtonColorOff} 
+              style={small_button} title="Filter by room type">
+                Filter by room type
+            </button>
+
+            {/* Room number */}
+            <div className="input-field">
+              <label htmlFor="room-number">Room number:</label>
+              <input type="number" id="room-number" className="form-control" formNoValidate
+              name="filterNumber" value={this.state.filterNumber} placeholder="Enter room number"
+              onChange={this.changeHandler.bind(this)}/>
+            </div>
+            {/* Button that will trigger filterByType function */}
+            {/* this will filter the rooms by type*/}
+            <button type="submit" className="btn btn-primary" 
+              onClick={this.filterNumber.bind(this)}
+              onMouseOver={hoverButtonColorOn} onMouseOut={hoverButtonColorOff} 
+              style={small_button} title="Filter by room type">
+                Filter by room number
+            </button>
+          </div>
+
+          {/* Customer name and total */}
+          <div className="col-md-3">
+            {/* Room type */}
+            <div className="input-field">
+              <label htmlFor="customer-name">Customer name:</label>
+              <input type="text" id="customer-name" className="form-control" formNoValidate
+              name="filterCustomer" value={this.state.filterCustomer} placeholder="Enter customer name"
+              onChange={this.changeHandler.bind(this)}/>
+            </div>
+            {/* Button that will trigger filterCustomer function */}
+            {/* this will filter the bookings by customer*/}
+            <button type="submit" className="btn btn-primary" 
+              onClick={this.filterCustomer.bind(this)}
+              onMouseOver={hoverButtonColorOn} onMouseOut={hoverButtonColorOff} 
+              style={small_button} title="Filter by customer name">
+                Filter by customer name
+            </button>
+
+            {/* Total cost range */}
+            <p>Total cost range: </p>
+            <div className="input-field">
+              <input type="number" id="total-cost-min" style={{width:"75px", marginRight:"5px"}}
+              name="filterTotalMin" value={this.state.filterTotalMin} placeholder="Enter min total"
+              onChange={this.changeHandler.bind(this)}/>
+               - 
+              <input type="number" id="total-cost-max" style={{width:"75px", marginLeft:"5px"}}
+              name="filterTotalMax" value={this.state.filterTotalMax} placeholder="Enter max total"
+              onChange={this.changeHandler.bind(this)}/>
+            </div>
+            {/* Button that will trigger filterTotal function */}
+            {/* this will filter the rooms by total cost range*/}
+            <button type="submit" className="btn btn-primary" 
+              onClick={this.filterTotal.bind(this)}
+              onMouseOver={hoverButtonColorOn} onMouseOut={hoverButtonColorOff} 
+              style={small_button} title="Filter by room type">
+                Filter by total cost
+            </button>
+            <br/>
+          </div>
+
+          {/* Arrival and checkout date filters */}
+          <div className="col-md-3">
+            {/* Arrival date */}
+            <div className="input-field">
+              <label htmlFor="arrivalDate">Arrival date:</label>
+              <input type="text" id="arrivalDate" className="form-control" formNoValidate
+              name="filterArrivalDate" value={this.state.filterArrivalDate} placeholder="Enter arrival date"
+              onChange={this.changeHandler.bind(this)}/>
+            </div>
+
+            {/* Button that will trigger filterByType function */}
+            {/* this will filter the rooms by type*/}
+            <button type="submit" className="btn btn-primary" 
+              onClick={this.filterArrivalDate.bind(this)}
+              onMouseOver={hoverButtonColorOn} onMouseOut={hoverButtonColorOff} 
+              style={small_button} title="Filter by arrival date">
+                Filter by arrival date
+            </button>
+
+            {/* Checkout date */}
+            <div className="input-field">
+              <label htmlFor="checkoutDate">Checkout date:</label>
+              <input type="text" id="checkoutDate" className="form-control" formNoValidate
+              name="filterCheckoutDate" value={this.state.filterCheckoutDate} placeholder="Enter checkout date"
+              onChange={this.changeHandler.bind(this)}/>
+            </div>
+
+            {/* Button that will trigger filterByType function */}
+            {/* this will filter the rooms by type*/}
+            <button type="submit" className="btn btn-primary" 
+              onClick={this.filterCheckoutDate.bind(this)}
+              onMouseOver={hoverButtonColorOn} onMouseOut={hoverButtonColorOff} 
+              style={small_button} title="Filter by checkout date">
+                Filter by checkout date
+            </button>
+            <br/>
+          </div>
+          <div className="col-md-3">
+            {/* Filter bookings by status */}
+            <p>Filter by status: </p>
+            <button type="submit" className="btn btn-primary" 
+              onClick={this.filterStatus.bind(this, false, false)}
+              onMouseOver={hoverButtonColorOn} onMouseOut={hoverButtonColorOff} 
+              style={small_button}>
+                Status: Pending 
+            </button>
+            <br/>
+            <br/>
+            <button type="submit" className="btn btn-primary" 
+              onClick={this.filterStatus.bind(this, true, true)}
+              onMouseOver={hoverButtonColorOn} onMouseOut={hoverButtonColorOff} 
+              style={small_button}>
+                Status: Accepted 
+            </button>
+            <br/>
+            <br/>
+            <button type="submit" className="btn btn-primary" 
+              onClick={this.filterStatus.bind(this, true, false)}
+              onMouseOver={hoverButtonColorOn} onMouseOut={hoverButtonColorOff} 
+              style={small_button}>
+                Status: Rejected 
+            </button>
+            
+          </div>
+
+          <br/>
+        </div>
+        <br/>
+        <div className="row" style={colCentered}>
+          <br/>
+          {/* this will reset the rooms table */}
+          <button type="submit" className="btn btn-primary" 
+            onClick={this.fetchBookings.bind(this)}
+            onMouseOver={hoverButtonColorOn} onMouseOut={hoverButtonColorOff} 
+            style={reset_button} title="Save room type">
+              All rooms
+          </button>
+        </div>
+        <br/>
+        <div className="row">
+          <br/>
           <h2 style={colCentered}>Booking history</h2>
           <br/>
         </div>
+        <br/>
         <div className="row">
           <br/>
           {/* Table with bookings containing main info for user to choose */}

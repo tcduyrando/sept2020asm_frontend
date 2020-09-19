@@ -72,8 +72,8 @@ export default class BookingPage extends React.Component{
 
       bookingdates: [],
       dateId: 0,
-      arrivalDate: new Date( new Date().setHours(0,0,0,0) ),
-      checkoutDate: new Date( new Date().setHours(0,0,0,0) ),
+      arrivalDate: new Date( new Date().setHours(12,0,0,0) ),
+      checkoutDate: new Date( new Date().setHours(12,0,0,0) ),
       // date1: '2020-09-17',
       // date2: '2020-09-24',
       // date1r: new Date(),
@@ -165,7 +165,7 @@ export default class BookingPage extends React.Component{
   }
 
   handleArrivalDate(date) {
-    date.setHours(0,0,0,0); // set time to make make it more convenient while subtracting dates in above function
+    date.setHours(12,0,0,0); // set time to make make it more convenient while subtracting dates in above function
     this.setState( {arrivalDate: date} );
 
     var numOfNights = 0
@@ -177,7 +177,7 @@ export default class BookingPage extends React.Component{
   }
 
   handleCheckoutDate(date) {
-    date.setHours(0,0,0,0); // set time to make make it more convenient while subtracting dates in above function
+    date.setHours(12,0,0,0); // set time to make make it more convenient while subtracting dates in above function
     this.setState( {checkoutDate: date} );
 
     var numOfNights = 0
@@ -223,8 +223,8 @@ export default class BookingPage extends React.Component{
         console.log("Room ID: ", this.props.match.params.roomId),
         console.log("Request: ", this.state.request),
         console.log("Total cost: ", this.state.totalCost),
-        console.log("Arrival date: ", this.state.arrivalDate.toDateString() )
-        console.log("Checkout date: ", this.state.checkoutDate.toDateString() )
+        console.log("Arrival date: ", this.state.arrivalDate ),
+        console.log("Checkout date: ", this.state.checkoutDate )
 
         // POST new booking instance to api
         var methodVar = 'post'
@@ -253,6 +253,10 @@ export default class BookingPage extends React.Component{
         .then(res => res.json())
         .then(json => this.fetchBookings())
         .then( this.setState ({ redirect: true }) )
+        .then(
+          console.log("Arrival date: ", this.state.arrivalDate ),
+          console.log("Checkout date: ", this.state.checkoutDate )
+        )
       }
       // if total cost is equal to or less than 0 -> error
       else {
